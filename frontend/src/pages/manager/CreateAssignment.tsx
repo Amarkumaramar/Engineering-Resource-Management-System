@@ -58,12 +58,15 @@ export default function CreateAssignment() {
             <label className="form-label">Select Project</label>
             <select {...register("projectId")} className="input-field">
               <option value="">-- Choose Project --</option>
-              {projects?.map((proj: any) => (
-                <option key={proj._id} value={proj._id}>
-                  {proj.name}
-                </option>
-              ))}
+              {projects
+                ?.filter((proj: any) => proj.status === "active")
+                .map((proj: any) => (
+                  <option key={proj._id} value={proj._id}>
+                    {proj.name}
+                  </option>
+                ))}
             </select>
+
           </div>
 
           {/* Allocation Percentage */}

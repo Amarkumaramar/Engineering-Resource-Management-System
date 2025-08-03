@@ -6,6 +6,8 @@ import authRoutes from "./routes/authRoutes.js";
 import engineerRoutes from "./routes/engineerRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import assignmentRoutes from "./routes/assignmentRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js";
+
 
 dotenv.config();
 const app = express();
@@ -22,6 +24,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/engineers", engineerRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/assignments", assignmentRoutes);
+
+app.use("/api/search", searchRoutes);
+
 
 // Start server
 const PORT = process.env.PORT || 5000;

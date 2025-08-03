@@ -24,11 +24,27 @@ export default function TeamOverview() {
 
   // Calculate available capacity
   const getAvailableCapacity = (engineerId: string, maxCap: number) => {
+    const today = new Date();
+
     const assigned = assignments
-      ?.filter((a: any) => a.engineerId._id === engineerId)
-      .reduce((sum: number, a: any) => sum + a.allocationPercentage, 0) || 0;
+      ?.filter((a: any) => {
+        const start = new Date(a.startDate);
+        const end = new Date(a.endDate);
+
+        // Engineer match
+        const isSameEngineer = a.engineerId?._id === engineerId;
+
+        // Project is ongoing
+        const isActive = start <= today && today <= end;
+
+        return isSameEngineer && isActive;
+      })
+      .reduce((sum: number, a: any) => sum + (a.allocationPercentage || 0), 0) || 0;
+
     return Math.max(0, maxCap - assigned);
   };
+
+
 
   return (
     <div className="p-6">
@@ -37,7 +53,8 @@ export default function TeamOverview() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {engineers?.map((eng: any) => {
           const available = getAvailableCapacity(eng._id, eng.maxCapacity);
-          const allocated = eng.maxCapacity - available;
+          const used = 100 - available;
+
 
           return (
             <div key={eng._id} className="card">
@@ -45,15 +62,14 @@ export default function TeamOverview() {
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-semibold">{eng.name}</h3>
                 <span
-                  className={`badge ${
-                    allocated >= 90
+                  className={`badge ${used >= 90
                       ? "bg-red-500"
-                      : allocated >= 50
-                      ? "bg-yellow-500"
-                      : "bg-green-500"
-                  }`}
+                      : used >= 50
+                        ? "bg-yellow-500"
+                        : "bg-green-500"
+                    }`}
                 >
-                  {allocated}% Used
+                  {used}% Used
                 </span>
               </div>
 
@@ -74,21 +90,21 @@ export default function TeamOverview() {
                 ))}
               </div>
 
-              {/* Capacity Progress */}
+              {/* Capacity Info */}
               <div className="text-sm text-gray-700 mb-1">
                 Available: {available}%
               </div>
-              <div className="progress-container">
+              <div className="w-full h-3 bg-gray-200 rounded">
                 <div
-                  className="progress-bar"
+                  className="h-3 rounded"
                   style={{
-                    width: `${allocated}%`,
+                    width: `${used}%`,
                     backgroundColor:
-                      allocated >= 90
+                      used >= 90
                         ? "#dc2626"
-                        : allocated >= 50
-                        ? "#f59e0b"
-                        : "#2563eb",
+                        : used >= 50
+                          ? "#f59e0b"
+                          : "#2563eb",
                   }}
                 ></div>
               </div>
@@ -97,5 +113,6 @@ export default function TeamOverview() {
         })}
       </div>
     </div>
+
   );
 }
